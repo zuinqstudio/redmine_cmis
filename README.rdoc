@@ -1,9 +1,9 @@
 = Cmis Plugin
 
-This plugin enables a new project module that allows to upload documents on a Cmis compatible server.
-Once the module is activated, a new project tab will appear, in which you'll be able to upload documents just as you used to do on Documents tab.
-Documents uploaded via Cmis tab will be stored on the configured Cmis server, in <tt>PATH_BASE/project_name/category/document/attachment</tt>
-Last, but not least, the plugin relies on ActiveCmis ruby gem, written by <tt>xaop</tt>. You can read more about them on <tt>http://xaop.com/labs/</tt>  
+- This plugin enables a new project module that allows to upload documents on a Cmis compatible server.
+- Once the module is activated, a new project tab will appear, in which you'll be able to upload documents just as you used to do on Documents tab.
+- Documents uploaded via Cmis tab will be stored on the configured Cmis server, in <tt>PATH_BASE/project_name/category/document/attachment</tt>
+- Last, but not least, the plugin relies on ActiveCmis ruby gem, written by <tt>xaop</tt>. You can read more about them on <tt>http://xaop.com/labs/</tt>  
 
 === Installing the plugin
 
