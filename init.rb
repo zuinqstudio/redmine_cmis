@@ -12,6 +12,7 @@
 # Looking forward your comments and suggestions! clientes@signo-net.com
 
 require 'redmine'
+require 'active_cmis' 
 
 Redmine::Plugin.register :redmine_cmis do
 	name 'Redmine Cmis Plugin'
@@ -35,5 +36,7 @@ Redmine::Plugin.register :redmine_cmis do
 		permission :view_cmis_documents, {:cmis => [:index, :show, :download]}, :public => true
 		permission :manage_cmis_documents, :cmis => [:new, :edit, :destroy, :destroy_attachment, :synchronize, :synchronize_document, :import, :prepare_import, :add_attachment]
 	end
+	
+    raise 'active_cmis library not installed' unless defined?(ActiveCMIS)
 
 end

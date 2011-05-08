@@ -1,0 +1,39 @@
+<%
+# Encoding: UTF-8
+# Written by: Signo-Net
+# Email: clientes@signo-net.com 
+# Web: http://www.signo-net.com 
+
+# This work is licensed under a Creative Commons Attribution 3.0 License.
+# [ http://creativecommons.org/licenses/by/3.0/ ]
+
+# This means you may use it for any purpose, and make any changes you like.
+# All we ask is that you include a link back to our page in your credits.
+
+# Looking forward your comments and suggestions! clientes@signo-net.com
+%>
+<p>
+  <label><%=l(:label_server_url)%></label>
+  <%= text_field_tag 'settings[server_url]', settings['server_url'] %>
+</p>
+<p>
+  <label><%=l(:label_repository_id)%></label>
+  <%= text_field_tag 'settings[repository_id]', settings['repository_id'] %>
+</p>
+<p>
+  <label><%=l(:label_usuario_cmis)%></label>
+  <%= text_field_tag 'settings[server_login]', settings['server_login'] %>
+</p>
+<p>
+  <label><%=l(:label_password_usuario_cmis)%></label>
+  <%= password_field_tag 'settings[server_password]', settings['server_password'] %>
+</p>
+<p>
+  <label><%=l(:label_path_base_documentos)%></label>
+  <%= text_field_tag 'settings[documents_path_base]', settings['documents_path_base'] %>
+</p>
+
+<% content_for :sidebar do %>
+    <h3><%= l(:label_titulo_configuracion, '') %></h3>
+    <p><%= l(:label_info_configuracion, '') %></p>
+<% end %>

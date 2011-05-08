@@ -149,47 +149,47 @@ class CmisAttachment < ActiveRecord::Base
     return valido
   end
   
+  def validate
+    if self.filesize > Setting.attachment_max_size.to_i.kilobytes
+      errors.add(:base, :too_long, :count => Setting.attachment_max_size.to_i.kilobytes)
+    end
+  end
+  
   def self.attach_files(project, document, attachments)
     attached = []
 	warnings = []
     if attachments && attachments.is_a?(Hash)
       attachments.each_value do |tmp|
-        file = tmp['file']
-		desc = tmp['description']
-        next unless file && file.size > 0
+      file = tmp['file']
+		  desc = tmp['description']
+      next unless file && file.size > 0
 		if file && validar_nombre_fichero(file)
-			#Comprobamos el tamaño
-			if CmisAttachment.check_size_reached(file.size)
-				warnings << l(:label_filesize_reached, CmisAttachment.get_max_filesize_mb.to_s)
-				redirect_to :action => 'new', :project_id => project
-			else
-			    attachment = CmisAttachment.new()
-				attachment.author = User.current
-				attachment.description = desc
-			    attachment.cmis_document_id = document.id
-				attachment.file = file
-				#ahora comprobamos que no exista en redmine otro documento con el mismo proyect_id, categoria de documento y titulo
-				nombre_archivo = CmisAttachment.get_nombre_si_repetido(file.original_filename, document.path, document)
-			    attachment.path = document.path + nombre_archivo;
+		  attachment = CmisAttachment.new()
+			attachment.author = User.current
+			attachment.description = desc
+		  attachment.cmis_document_id = document.id
+			attachment.file = file
+			#ahora comprobamos que no exista en redmine otro documento con el mismo proyect_id, categoria de documento y titulo
+			nombre_archivo = CmisAttachment.get_nombre_si_repetido(file.original_filename, document.path, document)
+		  attachment.path = document.path + nombre_archivo;
 
-				begin
-					if attachment.save
-					    subject = l(:asunto_documento_add, :author => User.current, :proyecto => project.name)
-					    mensaje = l(:mensaje_documento_add, :author => User.current, :documento => nombre_archivo, :proyecto => project.name)
-						CmisMailer::deliver_send_new_document(project.recipients, subject, mensaje) if Setting.notified_events.include?('document_added')
-			            attached << attachment
-					else
-						document.unsaved_attachments ||= []
-						document.unsaved_attachments << attachment
-					end
-			  rescue Errno::ETIMEDOUT
-          raise CmisException.new, l(:unable_connect_cmis)   
-  			rescue CmisException=>e
-          raise e
-        rescue Errno::ECONNREFUSED=>e
-          raise CmisException.new, l(:unable_connect_cmis)
-        end
-			end
+			begin
+				if attachment.save
+				    subject = l(:asunto_documento_add, :author => User.current, :proyecto => project.name)
+				    mensaje = l(:mensaje_documento_add, :author => User.current, :documento => nombre_archivo, :proyecto => project.name)
+					CmisMailer::deliver_send_new_document(project.recipients, subject, mensaje) if Setting.notified_events.include?('document_added')
+		            attached << attachment
+				else
+					document.unsaved_attachments ||= []
+					document.unsaved_attachments << attachment
+				end
+		  rescue Errno::ETIMEDOUT
+        raise CmisException.new, l(:unable_connect_cmis)   
+			rescue CmisException=>e
+        raise e
+      rescue Errno::ECONNREFUSED=>e
+        raise CmisException.new, l(:unable_connect_cmis)
+      end
 		else
 			warnings << l(:error_conexion_cmis)
 		end
@@ -231,11 +231,11 @@ class CmisAttachment < ActiveRecord::Base
   end
    
   def self.get_max_filesize_mb
-	 return 10
+	 return 5
   end
   
   def self.get_max_filesize_bytes
-	 return (get_max_filesize_mb*1000*1000)
+	 return (get_max_filesize_mb * 1024 * 1024)
   end
   
   def self.check_size_reached(size)
