@@ -175,8 +175,8 @@ class CmisAttachment < ActiveRecord::Base
 
 			begin
 				if attachment.save
-				    subject = l(:asunto_documento_add, :author => User.current, :proyecto => project.name)
-				    mensaje = l(:mensaje_documento_add, :author => User.current, :documento => nombre_archivo, :proyecto => project.name)
+				    subject = l(:cmis_subject_add_document, :author => User.current, :proyecto => project.name)
+				    mensaje = l(:cmis_message_add_document, :author => User.current, :documento => nombre_archivo, :proyecto => project.name)
 					CmisMailer::deliver_send_new_document(project.recipients, subject, mensaje) if Setting.notified_events.include?('document_added')
 		            attached << attachment
 				else

@@ -73,8 +73,8 @@ class CmisController < ApplicationController
     			flash[:warning]=warning
     		  }
     		  
-    		  subject = l(:asunto_documento_add, :author => User.current, :proyecto => @project.name)
-    		  mensaje = l(:mensaje_documento_add, :author => User.current, :documento => @document.title, :proyecto => @project.name)
+    		  subject = l(:cmis_subject_add_document, :author => User.current, :proyecto => @project.name)
+    		  mensaje = l(:cmis_message_add_document, :author => User.current, :documento => @document.title, :proyecto => @project.name)
     		  CmisMailer::deliver_send_new_document(@project.recipients, subject, mensaje) if Setting.notified_events.include?('document_added')
     	      
     		  flash[:notice] = l(:notice_successful_create)
