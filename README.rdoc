@@ -17,8 +17,8 @@
 
 === Uninstalling the plugin
 
-- Undo the database migration by typing <tt>rake db:migrate:plugin NAME=redmine_chuck_norris VERSION=0</tt>
-- Remove <tt>redmine_chuck_norris</tt> from your <tt>redmine/vendor/plugins</tt> folder.
+- Undo the database migration by typing <tt>rake db:migrate:plugin NAME=redmine_cmis VERSION=0</tt>
+- Remove <tt>redmine_cmis</tt> from your <tt>redmine/vendor/plugins</tt> folder.
 
 === Contact
 
