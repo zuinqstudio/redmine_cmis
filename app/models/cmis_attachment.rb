@@ -41,8 +41,12 @@ class CmisAttachment < ActiveRecord::Base
  
   def before_create
   	logger.debug("Creating new document")
-  	self.created_on = Time.now
-  	self.updated_on = Time.now
+    if (self.created_on == nil)
+  	 self.created_on = Time.now
+    end
+    if (self.updated_on == nil)
+      self.updated_on = Time.now
+    end  	
   	
     if @temp_file && (@temp_file.size > 0) && self.path_archivo && self.nombre_archivo
       begin
@@ -56,7 +60,8 @@ class CmisAttachment < ActiveRecord::Base
     end
   end
   
-  def before_update  	
+  def before_update
+    self.updated_on = Time.now
   end
   
   def before_destroy

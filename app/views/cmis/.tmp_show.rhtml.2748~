@@ -32,10 +32,6 @@
 	                     :method => :post,
 	                     :update => 'attachments'
 	                   })) %>
-	<%= javascript_tag (remote_function({ :url => { :controller => 'cmis', :action => 'check_new_attachments', :project_id => @project, :id => @document},
-	                     :method => :post,
-	                     :update => 'attachments'
-	                   })) %>
 <% end %>
 
 <% if authorize_for('cmis', 'add_attachment') %>

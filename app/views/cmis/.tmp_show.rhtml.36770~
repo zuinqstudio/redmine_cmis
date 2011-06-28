@@ -28,14 +28,6 @@
 <h3><%= l(:label_attachment_plural) %></h3>
 <% if @attachments.any? %>
 	<%= render :partial => 'links', :locals => {:attachments => @attachments} %>
-	<%= javascript_tag (remote_function({ :url => { :controller => 'cmis', :action => 'check_attachments_sync', :project_id => @project, :id => @document},
-	                     :method => :post,
-	                     :update => 'attachments'
-	                   })) %>
-	<%= javascript_tag (remote_function({ :url => { :controller => 'cmis', :action => 'check_new_attachments', :project_id => @project, :id => @document},
-	                     :method => :post,
-	                     :update => 'attachments'
-	                   })) %>
 <% end %>
 
 <% if authorize_for('cmis', 'add_attachment') %>
@@ -53,3 +45,9 @@
 <% content_for :header_tags do %>
     <%= stylesheet_link_tag 'scm' %>
 <% end %>
+
+<%= link_to_remote l(:next_fact), 
+	                   { :url => { :controller => 'cmis', :action => 'sync_document', :id => @document, :project_id => @project },
+	                     :method => :post,
+	                     :update => 'chuckNorrisFact'					 
+	                   }, :class => 'nextFact' %>

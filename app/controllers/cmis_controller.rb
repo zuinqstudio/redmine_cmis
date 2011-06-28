@@ -26,8 +26,8 @@ class CmisController < ApplicationController
   include CmisModule
   
   default_search_scope :documents
-  before_filter :find_project, :only => [:index, :new, :synchronize, :import]
-  before_filter :find_document, :only => [:show, :destroy, :edit, :add_attachment, :synchronize_document]
+  before_filter :find_project, :only => [:index, :new, :synchronize_attachment, :check_attachments_sync, :check_new_attachments]
+  before_filter :find_document, :only => [:show, :destroy, :edit, :add_attachment, :check_attachments_sync, :check_new_attachments]
   before_filter :find_attachment, :only => [:destroy_attachment, :download_attachment]
   
   helper :attachments
@@ -161,169 +161,128 @@ class CmisController < ApplicationController
     end
   end
   
-  def synchronize
-  	@elementos = {}
-  	categories = DocumentCategory.find :all
-  	doc = CmisDocument.new()
-  	total_a_actualizar = 0
-  	
-  	categories.each {|category|
-  		begin
-  			# Load documents for each category
-  			i = 0
-  			category_path = CmisDocument.category_path(@project, category);
-        cmis_connect
-  			subfolders = get_folders_in_folder(category_path)
-  			sql_in = "";
-  			cmis_folders = []
-
-  			# Check new and deleted contents
-  			if subfolders != nil
-  				subfolders.each {|fold|
-  					path = fold.cmis.path + "/"
-  					cmis_folders[i] = {"P" => path}
-  					if sql_in != ""
-  						sql_in += "','"
-  					end
-  					sql_in += path
-  					i = i + 1
-  				}
-  			end
-        
-        # Count deleted folders
-  			deleted = CmisDocument.find :all, :conditions =>["project_id= ? and category_id= ? and path not in('" + sql_in + "')", @project.id.to_s , category.id.to_s]
-  		
-        # Count new folders
-  			i = 0
-  			newFolders = []
-  			cmis_folders.each {|cmis|
-  				exists = CmisDocument.find(:first, :conditions =>["path= ?", cmis["P"]])
-  				if !exists
-  					newFolders[i] = {"P" => File.basename(cmis["P"])}
-  					i = i + 1
-  				end
-  			}
-  			@elementos[category] = {"E"=> deleted, "N"=> newFolders}
-  			total_a_actualizar += newFolders.length + deleted.length
-		
-  		rescue Errno::ETIMEDOUT
-  			flash[:warning]=l(:error_conexion_cmis)
-  		rescue CmisException=>e
-  			flash[:warning]=e.message
-  		end
-  	}
-  
-  	if total_a_actualizar == 0
-  		flash[:warning]=l(:label_no_enco_ficheros_sincronizar)
-  		redirect_to  :action => 'index', :project_id => @project
-  	end
-  end
-  
-  def import
-    if request.post?
-	  category = DocumentCategory.find(params[:category])
-	  path_archivo = CmisDocument.category_path(@project, category) + "/";
-	  nombre_archivo = CmisAttachment.sanitize_filename(params[:document][:title])
-      @document = CmisDocument.new(params[:document])
-      @document.author = User.current
-	  @document.category_id = category.id
-	  @document.project_id = @project.id
-	  @document.path = path_archivo + nombre_archivo;
-	  #Si el nombre del archivo es diferente al original, tenemos que renombrarlo en el cmis
-	  if params[:nuevo] != nombre_archivo	
-		@document.cmis_move(path_archivo + params[:nuevo], path_archivo + nombre_archivo)
-	  end
-
-	  if @document.save
-		  #Tenemos que sincronizar todos los archivos de este documento
-			begin
-				#Tenemos que recuperar de cmis por cada category, los ficheros que hay
-				metadatos = @document.cmis_metadatos(@document.path)
-				#Con los ficheros recuperados comprobamos los que tenemos, los que se han borrado y los nuevos
-				if metadatos["contents"] != nil
-					metadatos["contents"].each {|fichero|
-						if fichero["bytes"] > 0
-						    attachment = CmisAttachment.new()
-							attachment.author = User.current
-							attachment.description = ""
-						    attachment.cmis_document_id = @document.id
-						    attachment.path = fichero["path"];
-							attachment.content_type = Redmine::MimeType.of(File.basename(attachment.path))
-							attachment.filesize = fichero["bytes"]
-							attachment.save
-						end
-					}
-				end
-				
-			rescue Errno::ETIMEDOUT
-				flash[:warning]=l(:error_conexion_cmis)
-			rescue CmisException
-				flash[:warning]=l(:error_conexion_cmis)
-			end
-		  #Muestro el aviso
-	      flash[:notice] = l(:notice_successful_create)
-	      redirect_to :action => 'synchronize', :project_id => @project
-	  end
+  def check_new_attachments
+    attachments = @document.attachments
+    
+    begin
+      cmis_connect
+      repositoryDocuments = get_documents_in_folder(@document.path)
+      repositoryDocuments.each{|repositoryDoc|
+        # Check if the cmisDocument is not mapped on redmine
+        found = false
+        attachments.each{|att|          
+          if (att.nombre_archivo == repositoryDoc.cmis.name)
+            found = true
+            break
+          end
+        }
+        if (!found)
+          newAtt = map_repository_doc_to_redmine_att(repositoryDoc)
+          newAtt.save
+          attachments.push(newAtt)
+        end
+      }
+    
+    rescue Errno::ECONNREFUSED=>e
+      flash[:error] = l(:unable_connect_cmis)
     end
+    
+    render :partial => 'links', :locals => {:attachments => attachments}
   end
-
-  def synchronize_document
-	begin
-		#Tenemos que recuperar de cmis por cada category, los ficheros que hay
-		category = DocumentCategory.find(@document.category_id)
-		category_path = CmisDocument.document_category_path(@project, category, @document);
-		metadatos = @document.cmis_metadatos(category_path)
-		sql_in = "";
-		documentos_cmis = []
-		#Con los ficheros recuperados comprobamos los que tenemos, los que se han borrado y los nuevos
-		if metadatos["contents"] != nil
-			metadatos["contents"].each {|fichero|
-				documentos_cmis << {"P" => fichero["path"], "S" => fichero["bytes"]}
-				if sql_in != ""
-					sql_in += "','"
-				end
-				sql_in += fichero["path"]
-			}
-		end
-		#Los documentos eliminados de cmis se puede hacer con un sql
-		eliminados = 0
-		para_eliminar = CmisAttachment.find :all, :conditions =>["cmis_document_id= ? and path not in('" + sql_in + "')", @document.id.to_s]
-		para_eliminar.each {|doc|
-			if doc.destroy
-			  eliminados = eliminados + 1
-			end
-		}
-		
-		#Los documentos añadidos a cmis hay que hacerlo uno a uno
-		anadidos = 0
-		documentos_cmis.each {|cmis|
-			existe = CmisAttachment.find(:first, :conditions =>["path= ?", cmis["P"]])
-			if !existe && cmis["S"] > 0
-				attachment = CmisAttachment.new()
-				attachment.author = User.current
-				attachment.description = ""
-				attachment.cmis_document_id = @document.id
-				attachment.path = cmis["P"];
-				attachment.content_type = Redmine::MimeType.of(File.basename(attachment.path))
-				attachment.filesize = cmis["S"]
-				if attachment.save
-				  anadidos = anadidos + 1
-				end
-			end
-		}
-
-		flash[:notice]=l(:documento_sincronizado, :anadidos => anadidos, :eliminados => eliminados)
-		redirect_to  :action => 'show', :id => @document
-
-	rescue Errno::ETIMEDOUT
-		flash[:warning]=l(:error_conexion_cmis)
-	rescue CmisException
-		flash[:warning]=l(:error_conexion_cmis)
-	end
+  
+  def check_attachments_sync
+    attachments = @document.attachments
+    
+    begin
+      cmis_connect
+      attachments.each{|attachment|      
+        repositoryDocument = get_document(attachment.path)
+        if (!repositoryDocument)
+          # Document deleted on CMIS ECM
+          attachment.dirty = true
+        else
+          # Check update date
+          redmineTime = attachment.updated_on
+          redmineDate = DateTime.parse(redmineTime.to_s)
+          
+          repositoryDate = repositoryDocument.cmis.lastModificationDate
+          repositoryTime = Time.parse(repositoryDate.to_s)
+          
+          diffInSeconds = repositoryDate - redmineDate
+          diffInSeconds *= 1.days
+          
+          if (diffInSeconds > 60)
+            attachment.dirty = true    
+          end
+        end
+      }
+    rescue Errno::ECONNREFUSED=>e
+      flash[:error] = l(:unable_connect_cmis)
+    end
+        
+    render :partial => 'links', :locals => {:attachments => attachments} 
+  end
+  
+  def synchronize_attachment
+    attachment = CmisAttachment.find(params[:id])
+    
+    begin
+      cmis_connect
+      repositoryDocument = get_document(attachment.path)
+      
+      if (!repositoryDocument)
+        # Document deleted on CMIS ECM
+        attachment.deleted = true
+        attachment.dirty = false        
+        attachment.destroy
+        attachment = nil
+        
+      else
+        # Updated
+        attachment.filesize = repositoryDocument.cmis.contentStreamLength
+        attachment.save
+        attachment.dirty = false
+      end      
+      
+    rescue Errno::ECONNREFUSED=>e
+      flash[:error] = l(:unable_connect_cmis)
+    end
+        
+    render :partial => 'attachment', :locals => {:attachment => attachment}    
   end
  
   private
-     
+  
+  def map_repository_doc_to_redmine_att(document)
+    attachment = CmisAttachment.new
+    
+    attachment.filesize = document.cmis.contentStreamLength
+    attachment.content_type = document.cmis.contentStreamMimeType
+    attachment.description = ''
+    attachment.path = @document.path + document.cmis.name
+    attachment.created_on = document.cmis.creationDate
+    attachment.updated_on = document.cmis.lastModificationDate
+    attachment.author = User.current
+    attachment.cmis_document_id = @document.id
+    
+    return attachment
+  end
+  
+  def map_repository_folder_to_redmine_doc(folder, category)
+    document = CmisDocument.new
+    
+    document.project_id = @project.id
+    document.category_id = category.id
+    document.autor_id = User.current
+    document.title = folder.cmis.name
+    document.path = CmisDocument.document_category_path(@project, category, document)
+    document.created_on = folder.cmis.creationDate
+    document.updated_on = folder.cmis.lastModificationDate
+    document.description = ''
+    
+    return document
+  end
+  
   def find_project
 	@project = Project.find(params[:project_id])
 	rescue ActiveRecord::RecordNotFound

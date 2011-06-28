@@ -12,8 +12,10 @@
 
 # Looking forward your comments and suggestions! clientes@signo-net.com
 %>
-<div id="attachments" class="attachments">
-<% for attachment in attachments %>	
-	<%= render :partial => 'attachment', :locals => {:attachment => attachment} %>
+<div class="attachments">
+<% for attachment in attachments %>
+	<div id="attachment_<%= attachment.id %>">
+		<%= render :partial => 'attachment', :locals => {:attachment => attachment} %>
+	</div>
 <% end %>
 </div>

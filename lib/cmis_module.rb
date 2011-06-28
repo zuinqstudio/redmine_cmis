@@ -81,7 +81,7 @@ module CmisModule
   end
   
   def read_document(path)
-    read_document_relative(path, true)
+    return read_document_relative(path, true)
   end
   
   def read_document_relative(path, isRelativePath)
@@ -90,7 +90,7 @@ module CmisModule
   end
   
   def get_document(path)
-    get_document_relative(path, true)
+    return get_document_relative(path, true)
   end
   
   def get_document_relative(path, isRelativePath)

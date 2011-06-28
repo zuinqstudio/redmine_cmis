@@ -18,7 +18,7 @@ Redmine::Plugin.register :redmine_cmis do
 	name 'Redmine Cmis Plugin'
 	author 'Signo-Net'
 	description 'Storage proyect files on your Cmis server'
-	version '0.0.1'
+	version '0.0.2'
 	url 'http://www.signo-net.com/downloads/'
 	author_url 'http://www.signo-net.com'
 

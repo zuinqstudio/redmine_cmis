@@ -1,0 +1,31 @@
+<%
+# Encoding: UTF-8
+# Written by: Signo-Net
+# Email: clientes@signo-net.com 
+# Web: http://www.signo-net.com 
+
+# This work is licensed under a Creative Commons Attribution 3.0 License.
+# [ http://creativecommons.org/licenses/by/3.0/ ]
+
+# This means you may use it for any purpose, and make any changes you like.
+# All we ask is that you include a link back to our page in your credits.
+
+# Looking forward your comments and suggestions! clientes@signo-net.com
+%>
+
+<p>
+    <%= link_to attachment.nombre_archivo, {:controller => 'cmis', :action => 'download_attachment', :id => attachment.id}, :class => 'icon icon-attachment', :accesskey => accesskey(:download) %> 
+    <%= h(" - #{attachment.description}") unless attachment.description.blank? %>
+    <span class="size">(<%= number_to_human_size attachment.filesize %>)</span>
+    <%= link_to_if_authorized image_tag('delete.png'), {:controller => 'cmis', :action => 'destroy_attachment', :id => attachment},
+									 :confirm => l(:text_are_you_sure),
+									 :method => :post,
+									 :class => 'delete',
+									 :title => l(:button_delete) %>
+    <span class="author"><%= attachment.author %>, <%= format_time(attachment.created_on) %></span>
+	
+	<%= javascript_tag (remote_function({ :url => { :controller => 'cmis', :action => 'synchronize_attachment', :id => attachment},
+	                     :method => :post,
+	                     :update => 'attachment'					 
+	                   })) %>
+  </p>
