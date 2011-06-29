@@ -1,0 +1,51 @@
+# Encoding: UTF-8
+# Written by: Signo-Net
+# Email: clientes@signo-net.com 
+# Web: http://www.signo-net.com 
+
+# This work is licensed under a Creative Commons Attribution 3.0 License.
+# [ http://creativecommons.org/licenses/by/3.0/ ]
+
+# This means you may use it for any purpose, and make any changes you like.
+# All we ask is that you include a link back to our page in your credits.
+
+# Looking forward your comments and suggestions! clientes@signo-net.com
+
+de:
+    permission_view_cmis_documents: "Dokumente ansehen"
+    permission_manage_cmis_documents: "Dokumente verwalten"
+    label_usuario_cmis: "Cmis Benutzer"
+    label_password_usuario_cmis: "Cmis Passwort"
+    label_path_base_documentos: "Dokumente Basispfad" 
+    formato_nombre_fichero: "Datei"
+    text_modificado: "Aktualisiert"
+    field_category: "Kategorie"
+    formato_nombre_titulo: "Titel"
+    field_description: "Beschreibung"
+    label_titulo_configuracion: "Informationen"
+    label_info_configuracion: "Bitte geben Sie den Benutzernamen für den CMIS Server ein. Bitte stellen sie auch Dokumente Basispfad ein und achten Sie darauf das keine Sonderzeichen enthalten sind"
+    error_conexion_cmis: "Cmis Verbindungsfehler. Bitte prüfen Sie die Plugin Konfiguration"
+    warning_falta_archivo: "Wählen Sie einen Datei aus"
+    warning_error_nombre_archivo: "Der Dateiname ist ungültig. Der Dateiname darf keine Sonderzeichnen enthalten."
+    error_fichero_no_enco_cmis: "Die Datei kann auf dem Server nicht gefunden werden.."
+    error_caracteres_finales: "Fehler: Die folgenden Zeichen sind als Suffix für den Dateinamen nicht zulässig.: * % ? & : ; | < > / + ¬ £ . (Leerzeichen sind auch nicht zulässig)"
+    label_sincronizar_cmis: "Syncronisieren"
+    label_sincronizacion_cmis: "Syncronization"
+    label_document_import: "Dokument importieren"
+    label_documentos_eliminados_cmis: "Dokumente welche gelöscht wurden"
+    label_documentos_anyadidos_cmis: "Dokumente welche hinzugeügt wurden"
+    label_no_enco_ficheros_sincronizar: "Keine Dateien zu syncronisieren"
+    label_ayuda_sincronizar: "Syncronizations-Hilfe"
+    label_info_sincronizacion: "Hier können Sie Dokumente von ihrem Cmis Server improtieren. Wählen Sie die Dateien zum importierten aus."
+    button_import: "Import"
+    label_filesize_reached: "Sie haben die Upload Gräßenbeschränkung von ({{value}} Mb) überschritten!"
+    label_por: "durch"
+    cmis_subject_add_document: "Dokumente wurde von {{author}} im Projekt {{proyecto}} erstellt."
+    cmis_message_add_document: "{{author}} hat das Dokument {{documento}} im Projeket {{proyecto}} erstellt."
+    documento_repetido: "Es existiert bereits ein Dokument mit dem selben Namen."
+    documento_sincronizado: "Synronization abgeschlossen. ({{anadidos}} Dokumente erfolgreich erstellt, {{eliminados}} Dokumente entfernt."
+    label_server_url: "Server Url"
+    unable_connect_cmis: "Die Verbindung mit dem Cmis Server war nicht erfolgreich. Überprüfen Sie das ihr Cmis Server läuft und die Konfiguration korrekt ist."
+    repository_not_found: "Das Cmis Repository konnte nicht gefunden werden. Überprüfen Sie das ihr Cmis Server läuft und die Konfiguration korrekt ist."
+    cmis_authentication_failed: "Cmis Authentifikation fehl geschlagen. Überprüfen Sie ihre Cmis Server Konfiguration."
+    label_repository_id: "Cmis Repository id"
