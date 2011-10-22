@@ -48,6 +48,9 @@ module CmisModule
     
     # Create Cmis document
     docType = @client.type_by_id("cmis:document")
+    if (docType.content_stream_allowed == "notallowed")
+      docType = @client.type_by_id("File")
+    end
     newDocument = docType.new("cmis:name" => documentName)
     newDocument.file(folder)
     newDocument.set_content_stream(:data=>contentStream, :overwrite=>true)
